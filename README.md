@@ -420,7 +420,7 @@ The project is being developed incrementally, starting with the user management 
 Full-Stack Developer
 
 - GitHub: `github.com/alive1258`
-- LinkedIn: `linkedin.com/in/zamirul-kabir-575a41279/`
+- LinkedIn: `linkedin.com/in/zamirul-kabir`
 
 ---
 
