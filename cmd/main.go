@@ -12,9 +12,13 @@ import (
 
 
 type User struct {
-    Name     string `json:"name" validate:"required"`
-    Email    string `json:"email" validate:"required,email"`
-    Password string `json:"password" validate:"required,min=6"`
+    gorm.Model
+
+    Name string `json:"name" validate:"required" gorm:"type:varchar(100);not null"`
+
+    Email string `json:"email" validate:"required,email" gorm:"type:varchar(100);unique;not null"`
+
+    Password string `json:"password" validate:"required,min=6" gorm:"type:varchar(100);not null"`
 }
 
 type CustomValidator struct {
@@ -27,15 +31,23 @@ func (cv *CustomValidator) Validate(i interface{}) error {
     return cv.validator.Struct(i)
 }
 
-func executeSomeBusinessLogic(user User) {
-    // save user to database etc.
-}
+
 
 func main() {
+dsn := "postgresql://neondb_owner:npg_vJtVsKu08cnx@ep-young-bar-b5s5zx7s-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+    TranslateError: true,
+})
 
-dsn := "host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
-db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
+
+if err != nil {
+    panic("failed to connect database")
+}else{
+    println("Database connection established successfully.")
+}
+
+db.AutoMigrate(&User{})
 
     e := echo.New()
 
@@ -54,19 +66,31 @@ db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
     })
 
     e.POST("/users", func(c *echo.Context) error {
-        u := new(User)
+        newUser := new(User)
 
-        if err := c.Bind(u); err != nil {
+        if err := c.Bind(newUser); err != nil {
             return c.String(http.StatusBadRequest, "bad request")
         }
 
-        if err := c.Validate(u); err != nil {
+        if err := c.Validate(newUser); err != nil {
             return c.String(http.StatusBadRequest, err.Error())
         }
 
-        executeSomeBusinessLogic(*u)
+    result := db.Create(newUser)
 
-        return c.JSON(http.StatusOK, u)
+    if result.Error != nil {
+        if result.Error == gorm.ErrDuplicatedKey {
+            return c.JSON(http.StatusConflict, map[string]string{
+                "error": "Email already exists",
+            })
+        }
+
+        return c.JSON(http.StatusInternalServerError, map[string]string{
+            "error": result.Error.Error(),
+        })
+    }
+
+return c.JSON(http.StatusCreated, newUser)
     })
 
     if err := e.Start(":8080"); err != nil {
