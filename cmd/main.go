@@ -1,13 +1,15 @@
 package main
 
 import (
+	"fmt"
+	"goticket/internal/config"
 	"goticket/internal/user"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
-	"gorm.io/driver/postgres"
+
 	"gorm.io/gorm"
 )
 
@@ -35,25 +37,15 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 
 func main() {
-dsn := "postgresql://neondb_owner:npg_vJtVsKu08cnx@ep-young-bar-b5s5zx7s-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-    TranslateError: true,
-})
+   cfg :=  config.LoadEnv()
 
+   db := config.ConnectDatabase(cfg)
 
-
-if err != nil {
-    panic("failed to connect database")
-}else{
-    println("Database connection established successfully.")
-}
-
-db.AutoMigrate(&User{})
+    db.AutoMigrate(&User{})
 
     e := echo.New()
-
     e.Use(middleware.RequestLogger())
-    e.Use(middleware.Recover())
+  
 
  
 	
@@ -70,8 +62,8 @@ db.AutoMigrate(&User{})
     user.RegisterRouters(e,db)
 
 
-
-    if err := e.Start(":8080"); err != nil {
+ port :=fmt.Sprintf(":%s", cfg.Port)
+    if err := e.Start(port); err != nil {
         e.Logger.Error("failed to start server", "error", err)
     }
 }
