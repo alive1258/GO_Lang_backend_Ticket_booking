@@ -2,8 +2,9 @@ package server
 
 import (
 	"fmt"
+
 	"goticket/internal/config"
-	"os/user"
+	"goticket/internal/user"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v5"
@@ -12,32 +13,42 @@ import (
 )
 
 type CustomValidator struct {
-    validator *validator.Validate
+	validator *validator.Validate
 }
-
-
 
 func (cv *CustomValidator) Validate(i interface{}) error {
-    return cv.validator.Struct(i)
+	return cv.validator.Struct(i)
 }
 
-
 func Start(db *gorm.DB, cfg *config.Config) {
-	db.AutoMigrate(&user.User{})
+	// Auto migrate
+	if err := db.AutoMigrate(&user.User{}); err != nil {
+		panic("failed to migrate database")
+	}
 
+	// Create Echo
 	e := echo.New()
-	e.Validator = &CustomValidator{validator: validator.New()}
+
+	// Validator
+	e.Validator = &CustomValidator{
+		validator: validator.New(),
+	}
+
+	// Middleware
 	e.Use(middleware.RequestLogger())
 
-	// e.GET("/health", func(c *echo.Context) error {
-	// 	return c.String(http.StatusOK, "ok")
-	// })
+	// Register routes
+	user.RegisterRouters(e, db)
 
-	// user routes
-	// user.RegisterRoutes(e, db)
-
+	// Port
 	port := fmt.Sprintf(":%s", cfg.Port)
+
+	// Start server
 	if err := e.Start(port); err != nil {
-		e.Logger.Error("failed to start server", "error", err)
+		e.Logger.Error(
+			"failed to start server",
+			"error",
+			err,
+		)
 	}
 }

@@ -9,7 +9,6 @@ import (
 
 	"github.com/labstack/echo/v5"
 )
-var ErrorEmailAlreadyExists = errors.New("email already exists")
 
 type handler struct {
 	service *service
@@ -46,11 +45,11 @@ func (h *handler) CreateUser(c *echo.Context) error {
 	response, err := h.service.CreateUser(req)
 
 	if err != nil {
-		if errors.Is(err, ErrorEmailAlreadyExists) {
+		if errors.Is(err, ErrorAlreadyExist) {
 			return c.JSON(http.StatusConflict, httpresponse.Error{
 				Code:    http.StatusConflict,
-				Message: "Email already exists",
-				Details: err.Error(),
+				Message: err.Error(),
+			
 			})
 		}
 

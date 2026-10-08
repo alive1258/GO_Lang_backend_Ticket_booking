@@ -5,11 +5,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterRouters(e *echo.Echo,db *gorm.DB){
+func RegisterRouters(e *echo.Echo, db *gorm.DB) {
 	userRepository := NewRepository(db)
-    userService := NewService(userRepository)
-    userHandler := NewHandler(userService)
 
-    e.POST("/users" ,userHandler.CreateUser)
+	userService := NewService(userRepository)
 
+	userHandler := NewHandler(userService)
+
+	e.POST("/users", userHandler.CreateUser)
 }

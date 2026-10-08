@@ -12,23 +12,28 @@ func NewService(repo Repository) *service {
 	}
 }
 
-func (s *service) CreateUser(req dto.CreateUserRequest) (*dto.CreateUserResponse, error){
-	user :=User{
-		Name: req.Name,
-		Email: req.Email,
+func (s *service) CreateUser(
+	req dto.CreateUserRequest,
+) (*dto.CreateUserResponse, error) {
+
+	user := User{
+		Name:     req.Name,
+		Email:    req.Email,
 		Password: req.Password,
 	}
-   err := s.repo.CreateUser(&user)
 
-	if err != nil{
-      return nil, err
+	err := s.repo.CreateUser(&user)
+
+	if err != nil {
+		return nil, err
 	}
 
-	response :=dto.CreateUserResponse{
-		ID: user.ID,
-		Name: user.Name,
-		Email: user.Email,
+	response := dto.CreateUserResponse{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
 		CreatedAt: user.CreatedAt.String(),
 	}
-	return  &response, nil
+
+	return &response, nil
 }

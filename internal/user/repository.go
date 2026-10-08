@@ -6,7 +6,9 @@ import (
 	"gorm.io/gorm"
 )
 
-var ErrorAlreadyExist = errors.New("user with this email already exist")
+var ErrorAlreadyExist = errors.New(
+	"user with this email already exists",
+)
 
 type Repository interface {
 	CreateUser(user *User) error
@@ -18,17 +20,15 @@ type repository struct {
 }
 
 func NewRepository(db *gorm.DB) Repository {
-
 	return &repository{
 		db: db,
 	}
 }
 
 func (r repository) CreateUser(user *User) error {
-
 	result := r.db.Create(user)
-	if result.Error != nil {
 
+	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
 			return ErrorAlreadyExist
 		}
@@ -41,11 +41,16 @@ func (r repository) CreateUser(user *User) error {
 
 func (r repository) GetUserByEmail(email string) (*User, error) {
 	var user User
-	result := r.db.Where(&User{Email: email}).First(&user)
+
+	result := r.db.
+		Where(&User{Email: email}).
+		First(&user)
+
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
+
 		return nil, result.Error
 	}
 

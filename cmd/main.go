@@ -5,13 +5,13 @@ import (
 	"goticket/internal/server"
 )
 
-
 func main() {
-    // load env
-   cfg :=  config.LoadEnv()
-   // connect db
-   db := config.ConnectDatabase(cfg)
-  // start server
-    server.Start( db, cfg)
-  
+	// Load environment variables
+	cfg := config.LoadEnv()
+
+	// Connect database
+	db := config.ConnectDatabase(cfg)
+
+	// Start server
+	server.Start(db, cfg)
 }
