@@ -1,6 +1,7 @@
 package main
 
 import (
+	"goticket/internal/user"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -54,9 +55,7 @@ db.AutoMigrate(&User{})
     e.Use(middleware.RequestLogger())
     e.Use(middleware.Recover())
 
-    e.Validator = &CustomValidator{
-        validator: validator.New(),
-    }
+ 
 	
 
     e.GET("/", func(c *echo.Context) error {
@@ -65,33 +64,12 @@ db.AutoMigrate(&User{})
         })
     })
 
-    e.POST("/users", func(c *echo.Context) error {
-        newUser := new(User)
+    e.Validator = &CustomValidator{validator: validator.New(),}
+    
+    // user route register
+    user.RegisterRouters(e,db)
 
-        if err := c.Bind(newUser); err != nil {
-            return c.String(http.StatusBadRequest, "bad request")
-        }
 
-        if err := c.Validate(newUser); err != nil {
-            return c.String(http.StatusBadRequest, err.Error())
-        }
-
-    result := db.Create(newUser)
-
-    if result.Error != nil {
-        if result.Error == gorm.ErrDuplicatedKey {
-            return c.JSON(http.StatusConflict, map[string]string{
-                "error": "Email already exists",
-            })
-        }
-
-        return c.JSON(http.StatusInternalServerError, map[string]string{
-            "error": result.Error.Error(),
-        })
-    }
-
-return c.JSON(http.StatusCreated, newUser)
-    })
 
     if err := e.Start(":8080"); err != nil {
         e.Logger.Error("failed to start server", "error", err)
