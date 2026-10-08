@@ -4,6 +4,7 @@ go 1.27.0
 
 require (
 	github.com/go-playground/validator/v10 v10.30.5
+	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v5 v5.4.0
 	gorm.io/driver/postgres v1.6.3
 	gorm.io/gorm v1.31.2
