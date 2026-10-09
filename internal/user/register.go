@@ -1,15 +1,21 @@
 package user
 
 import (
+	"goticket/internal/auth"
+
 	"github.com/labstack/echo/v5"
 	"gorm.io/gorm"
 )
 
-func RegisterRouters(e *echo.Echo,db *gorm.DB){
+func RegisterRouters(e *echo.Echo, db *gorm.DB, ) {
 	userRepository := NewRepository(db)
-    userService := NewService(userRepository)
-    userHandler := NewHandler(userService)
+    jwtService := auth.NewJWTService("")
+	userService := NewService(userRepository,jwtService)
 
-    e.POST("/users" ,userHandler.CreateUser)
+	userHandler := NewHandler(userService)
 
+	api := e.Group("/api/v1/auth")
+
+	api.POST("/register", userHandler.CreateUser)
+	api.POST("/login", userHandler.LoginUser)
 }

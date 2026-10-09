@@ -1,20 +1,25 @@
 package config
 
 import (
+	"log"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func ConnectDatabase(cfg *Config) *gorm.DB {
-	dsn := cfg.Dsn
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		TranslateError: true,
-	})
+	db, err := gorm.Open(
+		postgres.Open(cfg.Dsn),
+		&gorm.Config{
+			TranslateError: true,
+		},
+	)
 
 	if err != nil {
-		panic("failed to connect database")
-	} else {
-		println("Database connection successful")
+		log.Fatal("failed to connect database:", err)
 	}
+
+	log.Println("Database connection successful")
+
 	return db
 }
