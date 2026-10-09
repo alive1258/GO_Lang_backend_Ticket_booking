@@ -2,6 +2,7 @@ package user
 
 import (
 	"goticket/internal/auth"
+	"goticket/internal/middlewares"
 
 	"github.com/labstack/echo/v5"
 	"gorm.io/gorm"
@@ -18,5 +19,5 @@ func RegisterRouters(e *echo.Echo, db *gorm.DB, ) {
 
 	api.POST("/register", userHandler.CreateUser)
 	api.POST("/login", userHandler.LoginUser)
-	api.GET("/me", userHandler.GetMe)
+	api.GET("/me", userHandler.GetMe, middlewares.AuthMiddleware(jwtService)) // protected route
 }
