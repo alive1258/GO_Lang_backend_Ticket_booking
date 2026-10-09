@@ -1,15 +1,24 @@
 package user
 
-import "goticket/internal/user/dto"
+import (
+	"fmt"
+	"goticket/internal/auth"
+	"goticket/internal/user/dto"
+)
 
 type service struct {
 	repo Repository
+	jwtService auth.JWTService
 }
+var ErrInvalidCredentials = fmt.Errorf("invalid email or password")
 
-func NewService(repo Repository) *service {
-	return &service{
-		repo: repo,
-	}
+// func NewService(repo Repository, ) *service {
+// 	return &service{repo}
+// }
+
+
+func NewService(repo Repository, jwtService auth.JWTService) *service {
+	return &service{repo, jwtService}
 }
 
 func (s *service) CreateUser(
@@ -19,10 +28,15 @@ func (s *service) CreateUser(
 	user := User{
 		Name:     req.Name,
 		Email:    req.Email,
-		Password: req.Password,
+		
+	}
+		// hash password and set to user.Password
+	err := user.hashPassword(req.Password)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.repo.CreateUser(&user)
+	err = s.repo.CreateUser(&user)
 
 	if err != nil {
 		return nil, err
@@ -32,6 +46,40 @@ func (s *service) CreateUser(
 		ID:        user.ID,
 		Name:      user.Name,
 		Email:     user.Email,
+		CreatedAt: user.CreatedAt.String(),
+	}
+
+	return &response, nil
+}
+
+func (s *service) LoginUser(req dto.LoginRequest) (*dto.CreateUserResponse, error) {
+	user, err := s.repo.GetUserByEmail(req.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, ErrInvalidCredentials // User not found
+	}
+
+	// check password
+	err = user.checkPassword(req.Password)
+
+	if err != nil {
+		return nil, ErrInvalidCredentials
+	}
+
+	// generate token
+	token, err := s.jwtService.GenerateToken(user.ID, user.Email, user.Name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate token: %w", err)
+	}
+
+	response := dto.CreateUserResponse{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Token:     token,
 		CreatedAt: user.CreatedAt.String(),
 	}
 
