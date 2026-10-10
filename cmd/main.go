@@ -2,9 +2,9 @@ package main
 
 import (
 	"goticket/internal/config"
-	"goticket/internal/event"
+	// "goticket/internal/event"
 	"goticket/internal/server"
-	"log"
+	// "log"
 )
 
 func main() {
@@ -15,11 +15,11 @@ func main() {
 	db := config.ConnectDatabase(cfg)
 
 		// Automatically create/update the events table
-	if err := db.AutoMigrate(&event.Event{}); err != nil {
-		log.Fatal("Database migration failed:", err)
-	}
+	// if err := db.AutoMigrate(&event.Event{}); err != nil {
+	// 	log.Fatal("Database migration failed:", err)
+	// }
 
-	log.Println("Database migration completed successfully")
+	// log.Println("Database migration completed successfully")
 
 	// Start server
 	server.Start(db, cfg)
