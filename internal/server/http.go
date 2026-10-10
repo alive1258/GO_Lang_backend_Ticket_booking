@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"goticket/internal/config"
+	"goticket/internal/event"
 	"goticket/internal/user"
 
 	"github.com/go-playground/validator/v10"
@@ -39,6 +40,7 @@ func Start(db *gorm.DB, cfg *config.Config) {
 
 	// Register routes
 	user.RegisterRouters(e, db)
+	event.RegisterRoutes(e, db)
 
 	// Port
 	port := fmt.Sprintf(":%s", cfg.Port)
