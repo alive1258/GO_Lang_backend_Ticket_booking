@@ -5,6 +5,7 @@ go 1.27.0
 require (
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/golang-jwt/jwt/v5 v5.3.1
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v5 v5.4.0
 	golang.org/x/crypto v0.57.0
