@@ -102,19 +102,19 @@ func (h *handler) CreateBooking(c *echo.Context) error {
 	return c.JSON(http.StatusCreated, response)
 }
 
-// func (h *handler) GetMyBookings(c *echo.Context) error {
-// 	userId, ok := getCurrentUserID(c)
-// 	if !ok {
-// 		return c.JSON(http.StatusUnauthorized, httpresponse.Error{
-// 			Code:    http.StatusUnauthorized,
-// 			Message: "Unauthorized",
-// 		})
-// 	}
+func (h *handler) GetMyBookings(c *echo.Context) error {
+	userId, ok := getCurrentUserID(c)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, httpresponse.Error{
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized",
+		})
+	}
 
-// 	bookings, err := h.service.GetMyBookings(userId)
-// 	if err != nil {
-// 		return bookingErrorResponse(c, err)
-// 	}
+	bookings, err := h.service.GetMyBookings(userId)
+	if err != nil {
+		return bookingErrorResponse(c, err)
+	}
 
-// 	return c.JSON(http.StatusOK, bookings)
-// }
+	return c.JSON(http.StatusOK, bookings)
+}

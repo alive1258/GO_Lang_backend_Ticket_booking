@@ -42,7 +42,7 @@ func Start(db *gorm.DB, cfg *config.Config) {
 	e.Use(middleware.RequestLogger())
 
 	// Register routes
-	user.RegisterRouters(e, db)
+	user.RegisterRouters(e, db,cfg)
 	event.RegisterRoutes(e, db)
 	booking.RegisterRoutes(e, db,cfg)
 
