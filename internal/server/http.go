@@ -2,11 +2,11 @@ package server
 
 import (
 	"fmt"
-
-	"goticket/internal/booking"
 	"goticket/internal/config"
-	"goticket/internal/event"
-	"goticket/internal/user"
+	"goticket/internal/domain/booking"
+	"goticket/internal/domain/event"
+	"goticket/internal/domain/user"
+	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v5"
@@ -40,6 +40,10 @@ func Start(db *gorm.DB, cfg *config.Config) {
 
 	// Middleware
 	e.Use(middleware.RequestLogger())
+
+		e.GET("/health", func(c *echo.Context) error {
+		return c.String(http.StatusOK, "running move")
+	})
 
 	// Register routes
 	user.RegisterRouters(e, db,cfg)
